@@ -2,19 +2,42 @@
 <html>
   <head>
       <title>LinkScraper.js</title>
+      <style>
+        #htmlReponseData{
+          width:100%;
+          min-height:400px;
+        }
+        #buttonArea{
+          text-align:center;
+          margin:20px 0;
+        }
+        #buttonArea button{
+          color:#fff;
+          background-color:green;
+          padding:5px 10px;
+          border:0;
+          font-size:16px;
+          border-radius: 5px;
+        }
+      </style>
+      <script src="linkscraper.js"></script>
   </head>
   <body>
       <div>
         <h1>LinkScraper.js</h1>
-        <ol>
+        <ol id="scrape-links">
           <li><a href="page1.html" >Page 1</a></li>
           <li><a href="page2.html" >Page 2</a></li>
           <li><a href="page3.html" >Page 3</a></li>
           <li><a href="page4.html" >Page 4</a></li>
         </ol>
       </div>
+      <div id="buttonArea">
+        <button onclick="scrapeLinks('scrape-links')">Scrape Links</button>
+      </div>
+      <h2>Scraped HTML Content:</h2>
       <div>
-        <button onclick=""></button>
+          <textarea id="htmlReponseData"></textarea>
       </div>
   </body>
 </html>
