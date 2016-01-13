@@ -3,9 +3,12 @@
   <head>
       <title>LinkScraper.js</title>
       <style>
+        html,body{
+          font-family:helvetica,arial,sans-serif;
+        }
         #htmlReponseData{
           width:100%;
-          min-height:400px;
+          min-height:300px;
         }
         #buttonArea{
           text-align:center;
@@ -20,6 +23,7 @@
           border-radius: 5px;
         }
       </style>
+      <script src="jspdf.js"></script>
       <script src="linkscraper.js"></script>
   </head>
   <body>
@@ -35,9 +39,85 @@
       <div id="buttonArea">
         <button onclick="scrapeLinks('scrape-links')">Scrape Links</button>
       </div>
+      <div id="buttonArea">
+        <button onclick="htmltopdf()">HTML to PDF</button>
+      </div>
       <h2>Scraped HTML Content:</h2>
       <div>
           <textarea id="htmlReponseData"></textarea>
       </div>
+      <script type="text/javascript">
+        var elements;
+        var htmlDATA = "";
+        var globalDoc = "";
+
+        function loadDoc(URL) {
+          var xhttp = new XMLHttpRequest();
+          var htmlReponseData = document.getElementById("htmlReponseData");
+          var doc;
+          globalDoc = ""; //reset global html doc
+          htmlReponseData.innerHTML = ""; //clear textarea
+          xhttp.onreadystatechange = function() {
+            if (xhttp.readyState == 4 && xhttp.status == 200) {
+              responseHTML = xhttp.responseText;
+              htmlReponseData.innerHTML = htmlReponseData.innerHTML + responseHTML;
+        			htmlDATA = responseHTML;
+
+              var doc = (new DOMParser()).parseFromString(responseHTML,"text/html");
+
+              globalDoc += doc.body.innerHTML;
+            }
+          };
+          xhttp.open("GET", URL, true);
+          xhttp.send();
+        }
+
+        function htmltopdf(type) {
+          var xhttp = new XMLHttpRequest();
+          elements = document.getElementById("scrape-links").getElementsByTagName("a");
+          setTimeout(function(){ loadDoc(elements[0].href) },300);
+          setTimeout(function(){ loadDoc(elements[1].href) },300);
+          setTimeout(function(){ loadDoc(elements[2].href) },300);
+          setTimeout(function(){ loadDoc(elements[3].href) },300);
+          setTimeout(function(){
+
+            var pageUrl = window.location.href;
+            var pdf = new jsPDF('p','pt','letter');
+            //specify elements that are to be ignored in pdf
+            specialElementHandlers = {
+              '#content_footer': function (element,renderer) {return true},
+              '#related-content': function (element,renderer) {return true},
+              '#breadcrumb': function (element,renderer) {return true},
+              '#live-chat-left': function (element,renderer) {return true},
+              '#live-chat-right': function (element,renderer) {return true},
+              '#resources': function (element,renderer) {return true},
+              '#review-container': function (element,renderer) {return true},
+              '#ratings': function (element,renderer) {return true},
+              '#myModal': function (element,renderer) {return true},
+              '#blog-banner': function (element,renderer) {return true}
+            };
+            //set default text to 9px for page url title
+            pdf.setFontSize(8);
+            var pageTitle = pdf.splitTextToSize(pageUrl,600);
+            //pdf.text(40, 40, pageTitle);
+            margins = {
+              top: 40,
+              bottom: 40,
+              left: 40,
+              width: 530
+            };
+            pdf.fromHTML(
+              globalDoc,
+              margins.left,
+              margins.top, {
+                'width': margins.width,
+                'elementHandlers': specialElementHandlers
+              },
+              function (dispose) {
+                pdf.output('dataurlnewwindow');
+              }, margins);
+          },500);
+        }
+    </script>
   </body>
 </html>
